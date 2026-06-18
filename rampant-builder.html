@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lion Rampant Warband Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #2b2420;
+    --parchment: #f4ecd8;
+    --parchment-dark: #e7dcc1;
+    --rubric: #8b1a1a;
+    --gold: #c9a227;
+    --green: #4a5a3a;
+    --border: #c4b896;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--parchment);
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(201,162,39,0.06) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(139,26,26,0.05) 0%, transparent 40%);
+    color: var(--ink);
+    font-family: 'Crimson Text', serif;
+    font-size: 17px;
+    line-height: 1.5;
+  }
+  h1, h2, h3, .label-font {
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.03em;
+  }
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 8px;
+    border-bottom: 3px double var(--gold);
+    padding-bottom: 18px;
+  }
+  header h1 {
+    font-family: 'UnifrakturCook', serif;
+    font-size: clamp(1.8rem, 7vw, 3.6rem);
+    font-weight: 700;
+    color: var(--rubric);
+    margin: 0;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.05);
+    line-height: 1.1;
+  }
+  .h1-line { white-space: nowrap; }
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: #9a8c75;
+    font-style: italic;
+  }
+  header .sub {
+    font-style: italic;
+    color: var(--green);
+    margin-top: 6px;
+    font-size: 1.05rem;
+  }
+
+  .topbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 18px 0 22px;
+    padding: 12px 18px;
+    background: rgba(255,255,255,0.35);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .topbar .field { display: flex; align-items: center; gap: 8px; }
+  .topbar label { font-family: 'Cinzel', serif; font-size: 0.85rem; }
+  .topbar input[type="text"], .topbar select {
+    font-family: 'Crimson Text', serif;
+    font-size: 1rem;
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    background: var(--parchment);
+    border-radius: 3px;
+    color: var(--ink);
+  }
+  .topbar input[type="text"] { width: 220px; }
+
+  .seal {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .seal-circle {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #a83232, var(--rubric) 70%, #5e1010 100%);
+    border: 2px solid #5e1010;
+    color: var(--parchment);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3), inset 0 0 12px rgba(0,0,0,0.35);
+    flex-shrink: 0;
+  }
+  .seal-circle .num { font-size: 1.4rem; font-weight: 700; line-height: 1; }
+  .seal-circle .pts { font-size: 0.55rem; letter-spacing: 0.1em; margin-top: 2px; }
+  .seal-text { font-size: 0.85rem; }
+  .seal-text .over { color: var(--rubric); font-weight: 600; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: rgba(255,255,255,0.4);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px 18px;
+  }
+  .panel h2 {
+    margin: 0 0 12px;
+    font-size: 1.15rem;
+    color: var(--green);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+
+  .category {
+    margin-bottom: 14px;
+  }
+  .category > h3 {
+    font-size: 0.95rem;
+    margin: 0 0 6px;
+    color: var(--rubric);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .unit-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 3px;
+    transition: background 0.15s;
+  }
+  .unit-row:hover { background: rgba(201,162,39,0.12); }
+  .unit-row .name { flex: 1; font-weight: 600; }
+  .unit-row .cost { font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--green); width: 56px; text-align: right; }
+  .unit-row .info-btn,
+  .unit-row button.add {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    border: 1px solid var(--green);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--green);
+    cursor: pointer;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .unit-row .info-btn:hover,
+  .unit-row button.add:hover { background: var(--green); color: var(--parchment); }
+  .unit-row button.add:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .unit-desc {
+    font-size: 0.85rem;
+    color: #5a4f42;
+    padding: 4px 8px 8px 8px;
+    display: none;
+  }
+  .unit-desc.open { display: block; }
+  .info-line { margin-top: 4px; font-size: 0.94rem; }
+  .info-line strong { font-size: 0.85rem; }
+
+  /* Roster */
+  .roster-list {
+    list-style: none;
+    margin: 0; padding: 0;
+    min-height: 80px;
+  }
+  .roster-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 4px; border-bottom: 1px dashed var(--border); }
+  .roster-item:last-child { border-bottom: none; }
+  .roster-item .ri-top { display: flex; align-items: center; gap: 8px; width: 100%; }
+  .roster-item .ri-name { font-weight: 600; flex-shrink: 0; font-size: 0.92rem; }
+  .roster-item .ri-name-input {
+    font-family: 'Crimson Text', serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed transparent;
+    padding: 0;
+    min-width: 5em;
+    max-width: 9em;
+    flex: 0 1 9em;
+  }
+  .roster-item .ri-name-input:hover,
+  .roster-item .ri-name-input:focus {
+    border-bottom-color: var(--border);
+    outline: none;
+  }
+  .roster-item .ri-name-input::placeholder { color: var(--ink); opacity: 1; }
+  .roster-item .ri-type { font-size: 0.82rem; color: var(--green); font-style: italic; }
+  .roster-item .ri-spacer { flex: 1 1 0; }
+  .roster-item .ri-cost { font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--rubric); white-space: nowrap; flex-shrink: 0; }
+  .roster-item .ri-buttons { display: flex; gap: 6px; flex-shrink: 0; }
+
+  .empty-note {
+    font-style: italic;
+    color: #8a7e6c;
+    text-align: center;
+    padding: 24px 0;
+  }
+
+  .summary {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gold);
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+  }
+  .summary .warn { color: var(--rubric); }
+
+  .actions {
+    margin: 0 0 22px;
+    padding: 12px 18px;
+    background: rgba(255,255,255,0.35);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .actions .action-warnings {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-left: auto;
+  }
+  .actions button {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    padding: 8px 14px;
+    border: 1px solid var(--ink);
+    background: var(--parchment);
+    color: var(--ink);
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .actions button:hover { background: var(--gold); }
+  .actions button.danger { border-color: var(--rubric); color: var(--rubric); }
+  .actions button.danger:hover { background: var(--rubric); color: var(--parchment); }
+
+  .inline-upgrades {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 4px 12px;
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: rgba(201,162,39,0.07);
+    border-radius: 3px;
+    border: 1px dashed var(--border);
+  }
+  @media (max-width: 500px) {
+    .inline-upgrades { grid-template-columns: 1fr; }
+  }
+  .inline-upgrades-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    color: var(--green);
+    grid-column: 1 / -1;
+  }
+  .upgrade-check {
+    font-size: 0.84rem;
+    cursor: default;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .upgrade-check.dimmed { opacity: 0.35; pointer-events: none; }
+
+  .leader-btn, .banner-btn, .remove, .expand-btn {
+    background: transparent;
+    border-radius: 3px;
+    width: 28px; height: 28px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .leader-btn, .banner-btn { border: 1px solid var(--border); color: #aaa; }
+  .remove, .expand-btn { border: 1px solid var(--ink); color: var(--ink); }
+  .leader-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .leader-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(201,162,39,0.12); }
+  .banner-btn:hover:not(:disabled) { border-color: var(--rubric); color: var(--rubric); }
+  .banner-btn.active { border-color: var(--rubric); color: var(--rubric); background: rgba(139,26,26,0.08); }
+  .banner-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+  .remove:hover { border-color: var(--rubric); color: var(--rubric); }
+  .expand-btn:hover { background: rgba(0,0,0,0.06); }
+  .expand-btn:disabled { opacity: 0.25; cursor: not-allowed; background: none; }
+
+  .leader-badge {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    border-radius: 3px;
+    padding: 1px 5px;
+    letter-spacing: 0.05em;
+  }
+  li.is-leader {
+    background: rgba(201,162,39,0.06);
+    border-radius: 4px;
+  }
+
+  #leaderSkillsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+    gap: 4px 12px;
+    margin-top: 6px;
+    padding: 6px 8px;
+    background: rgba(201,162,39,0.07);
+    border-radius: 3px;
+    border: 1px dashed var(--border);
+  }
+  @media (max-width: 500px) {
+    #leaderSkillsList { grid-template-columns: 1fr; }
+  }
+  .skill-row {
+    padding: 3px 2px;
+    border-bottom: none;
+  }
+  .skill-row.dimmed { opacity: 0.4; }
+  .skill-row.chosen { background: rgba(201,162,39,0.08); border-radius: 3px; }
+  .skill-check {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .skill-check input { cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+  .skill-name { font-weight: 600; }
+  .skill-cost { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--green); }
+  .skill-desc {
+    font-size: 0.82rem;
+    font-style: italic;
+    color: #5a4f42;
+    margin: 3px 0 0 20px;
+  }
+  .skill-incompat { color: var(--rubric); font-style: normal; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    margin-bottom: 6px;
+  }
+  .stats-cell {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255,255,255,0.4);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 4px 6px;
+    text-align: center;
+  }
+  .stats-key {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    color: var(--green);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+  .stats-val {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .rule-tip-wrap { position: relative; display: inline; }
+  .rule-tip {
+    text-decoration: underline dotted var(--green);
+    cursor: pointer;
+    font-style: normal;
+    color: inherit;
+  }
+  .rule-tip:hover { color: var(--green); }
+  .rule-popup {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 1.4em;
+    z-index: 10;
+    background: var(--parchment-dark);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 7px 10px;
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--ink);
+    width: 220px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    line-height: 1.4;
+    white-space: normal;
+    pointer-events: none;
+  }
+  .rule-popup.open { display: block; }
+  .print-view {
+    display: none;
+    background: #fff;
+    color: #1a1a1a;
+    font-family: 'Crimson Text', serif;
+    padding: 20px 24px;
+    max-width: 210mm;
+    margin: 0 auto;
+  }
+  .print-view h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    margin: 0 0 2px;
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 8px;
+  }
+  .print-view .print-meta {
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+    color: #444;
+  }
+  .print-units {
+    column-count: 2;
+    column-gap: 16px;
+  }
+  @media (max-width: 700px) {
+    .print-units { column-count: 1; }
+  }
+  .print-unit {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .print-unit h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    margin: 0 0 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .print-unit .print-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .print-unit .print-stats-cell {
+    display: flex;
+    flex-direction: column;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 3px 5px;
+    text-align: center;
+  }
+  .print-unit .print-stats-key {
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    color: #555;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+  .print-unit .print-stats-val {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.25;
+  }
+  .print-unit .print-line { font-size: 0.85rem; margin-top: 3px; }
+  .print-rules {
+    margin-top: 24px;
+  }
+  .print-rules h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #1a1a1a;
+    padding-bottom: 6px;
+  }
+  .print-rule-entry { font-size: 0.85rem; margin-bottom: 6px; }
+  .print-rule-entry strong { font-family: 'Cinzel', serif; }
+
+  @media print {
+    #mainWrap { display: none !important; }
+    body * { visibility: hidden; }
+    .print-view, .print-view * { visibility: visible; }
+    .print-view { display: block; position: absolute; left: 0; top: 0; max-width: 100%; padding: 10mm; }
+    .print-units { column-count: 2; }
+    @page { size: A4; margin: 10mm; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="mainWrap">
+  <header>
+    <h1><span class="h1-line">Lion Rampant</span> <span class="h1-line">Warband Builder</span></h1>
+  </header>
+
+  <div class="topbar">
+    <div class="field">
+      <label for="warbandName">Warband name</label>
+      <input type="text" id="warbandName" placeholder="The Black Boar Company">
+    </div>
+    <div class="field">
+      <label for="pointsCap">Points limit</label>
+      <input type="number" id="pointsCap" value="24" min="0" style="width:70px; font-family:'Crimson Text',serif; font-size:1rem; padding:5px 8px; border:1px solid var(--border); background:var(--parchment); border-radius:3px; color:var(--ink);">
+    </div>
+    <div class="field">
+      <label for="optionalUnits">Optional units</label>
+      <input type="checkbox" id="optionalUnits">
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="printMode">Print</button>
+    <button id="exportTxt">Copy Text</button>
+    <button id="clearAll" class="danger">Clear</button>
+    <div class="action-warnings">
+      <div id="leaderWarn" style="display:none; color:var(--rubric); font-size:0.85rem; font-style:italic;">⚠ No Leader nominated — tap ♛ on a unit to designate one.</div>
+      <div id="unitCountWarn" style="display:none; color:var(--rubric); font-size:0.85rem; font-style:italic;"></div>
+      <div id="pointsCapWarn" style="display:none; color:var(--rubric); font-size:0.85rem; font-style:italic;"></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="panel">
+      <div id="unitCategories"></div>
+    </div>
+
+    <div class="panel">
+      <h2 id="rosterHeading">Your Warband</h2>
+      <div class="summary">
+        <span>Units: <span id="unitCount">0</span></span>
+        <span>Total: <span id="totalLabel">0</span> pts <span id="capLabel"></span></span>
+      </div>
+      <ul class="roster-list" id="rosterList"></ul>
+      <div class="empty-note" id="emptyNote">No units enlisted yet. Choose from the left to begin your muster.</div>
+      <div id="leaderSkillsSection" style="margin-top:16px; border-top:2px solid var(--gold); padding-top:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+          <div style="display:flex; align-items:baseline; gap:10px;">
+            <h2 style="margin:0; border:none; padding:0;">Leader Skills</h2>
+            <button id="leaderSkillsToggle" class="info-btn" style="font-size:0.8rem; padding:5px 10px; border:1px solid var(--green); border-radius:3px; background:transparent; color:var(--green); cursor:pointer;">▾</button>
+          </div>
+          <span id="leaderSkillsCount" style="font-size:0.85rem; font-family:'Cinzel',serif; color:var(--green);">0 / 2</span>
+        </div>
+        <div id="leaderSkillsList" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <footer><a href="https://www.ospreypublishing.com/uk/lion-rampant-second-edition-9781472852618/" target="_blank" rel="noopener" style="color:inherit;">Lion Rampant</a> is a trademark of Osprey Publishing / Daniel Mersey. This tool is an unofficial fan-made aid.</footer>
+</div>
+
+<div id="printView" class="print-view"></div>
+
+<script>
+// Lion Rampant 2nd Edition official unit list (Chapter 2: Mustering Your Warband)
+// Stats, costs, and upgrade point values extracted from the rulebook's unit profile tables.
+const UNITS = {
+  "Mounted Units": [
+    {
+      name: "Elite Cavalry", cost: 6,
+      stats: { Models: "6", Armour: "4", Courage: "3+", Move: "7+", Attack: "5+", Shoot: "–", MaxMove: "10\"", AVDV: "3+/5+", SVRange: "–" },
+      special: "Wild Charge, Counter-charge",
+      upgrades: [
+        { name: "Fearsome", cost: 2 },
+        { name: "Bloodthirsty", cost: 3 },
+        { name: "Mounted Bows", cost: 2, desc: "Wild Charge and Counter-charge are removed and replaced with Shoot 6+/Range 12\" with a Shoot Value of 5+.", removesSpecial: ["Wild Charge", "Counter-charge"], statOverrides: { Shoot: "6+", SVRange: "5+/12\"" } },
+        { name: "Drilled", cost: 1, desc: "This unit is better controlled than most hot-headed Elite Cavalry and removes Wild Charge.", removesSpecial: ["Wild Charge"] },
+        { name: "Motivated", cost: 1, desc: "This unit has less of a snooty attitude to the grunt-work of small-scale battles, and its Move becomes 6+.", statOverrides: { Move: "6+" } },
+        { name: "Camel-mounted (Fearsome vs Mounted)", cost: 2, desc: "Represents camel-mounted troops. Uses the Fearsome upgrade in Attacks against Mounted units only (not Foot or Missile units). Unit does not class sand dunes as rough terrain. If used, must be applied to all camel units in the Warband.", optional: true }
+      ]
+    },
+    {
+      name: "Heavy Cavalry", cost: 4,
+      stats: { Models: "6", Armour: "3", Courage: "4+", Move: "5+", Attack: "5+", Shoot: "–", MaxMove: "10\"", AVDV: "4+/5+", SVRange: "–" },
+      special: "Counter-charge",
+      upgrades: [
+        { name: "Fearsome", cost: 2 },
+        { name: "Bloodthirsty", cost: 3 },
+        { name: "Mounted Bows", cost: 1, desc: "Add Shoot 6+/Range 12\" with a Shoot Value of 5+. Represents horsemen who may shoot with a bow but are not afraid to charge into combat.", statOverrides: { Shoot: "6+", SVRange: "5+/12\"" } },
+        { name: "Mounted Crossbows", cost: 0, desc: "Counter-charge is removed and replaced with Shoot 7+/Range 12\" with a Shoot Value of 5+. Attack Value is reduced to 5+.", removesSpecial: ["Counter-charge"], statOverrides: { Shoot: "7+", SVRange: "5+/12\"", AVDV: "5+/5+" } },
+        { name: "Camel-mounted (Fearsome vs Mounted)", cost: 2, desc: "Represents camel-mounted troops. Uses the Fearsome upgrade in Attacks against Mounted units only (not Foot or Missile units). Unit does not class sand dunes as rough terrain. If used, must be applied to all camel units in the Warband.", optional: true }
+      ]
+    },
+    {
+      name: "Light Cavalry", cost: 4,
+      stats: { Models: "6", Armour: "3", Courage: "5+", Move: "5+", Attack: "7+", Shoot: "6+", MaxMove: "12\"", AVDV: "5+/6", SVRange: "5+/12\"" },
+      special: "Skirmish, Evade",
+      upgrades: [
+        { name: "Javelins Only", cost: -1, statOverrides: { SVRange: "5+/6\"" } },
+        { name: "Veteran", cost: 2, desc: "Does not suffer the -1 penalty to Shoot Value when Skirmishing." }
+      ]
+    }
+  ],
+  "Foot Units": [
+    {
+      name: "Elite Infantry", cost: 6,
+      stats: { Models: "6", Armour: "4", Courage: "3+", Move: "5+", Attack: "5+", Shoot: "–", MaxMove: "6\"", AVDV: "3+/4+", SVRange: "–" },
+      special: "Flexible",
+      upgrades: [
+        { name: "Fearsome", cost: 2 },
+        { name: "Bloodthirsty", cost: 3 }
+      ]
+    },
+    {
+      name: "Heavy Infantry", cost: 4,
+      stats: { Models: "12", Armour: "3", Courage: "4+", Move: "5+", Attack: "6+", Shoot: "–", MaxMove: "6\"", AVDV: "5+/4+", SVRange: "–" },
+      special: "Wall of Spears",
+      upgrades: [
+        { name: "Veteran", cost: 2, desc: "Attack Value becomes 4+. The unit may no longer form a Wall of Spears.", removesSpecial: ["Wall of Spears"], statOverrides: { AVDV: "4+/4+" }, incompatibleWith: ["Pikes"] },
+        { name: "Javelins", cost: 1, statOverrides: { Shoot: "6+", SVRange: "5+/6\"" } },
+        { name: "Bloodthirsty", cost: 3 },
+        { name: "Pikes", cost: 1, desc: "Defence Value becomes 3+ versus Mounted units. Cannot be used with Veteran upgrade. May still form Wall of Spears.", optional: true, incompatibleWith: ["Veteran"] },
+        { name: "Mobile Schiltron (half speed)", cost: 1, desc: "Unit may move in Wall of Spears formation at half speed. Cannot move in rough terrain. Requires the Pikes upgrade.", optional: true, requires: "Pikes", incompatibleWith: ["Mobile Schiltron (full speed)"] },
+        { name: "Mobile Schiltron (full speed)", cost: 2, desc: "Unit may move in Wall of Spears formation at full speed. Cannot move in rough terrain. Requires the Pikes upgrade.", optional: true, requires: "Pikes", incompatibleWith: ["Mobile Schiltron (half speed)"] }
+      ]
+    },
+    {
+      name: "Light Infantry", cost: 3,
+      stats: { Models: "12", Armour: "2", Courage: "4+", Move: "5+", Attack: "6+", Shoot: "–", MaxMove: "8\"", AVDV: "5+/4+", SVRange: "–" },
+      special: "Wall of Spears",
+      upgrades: [
+        { name: "Veteran", cost: 2, desc: "Attack Value becomes 4+. The unit may no longer form a Wall of Spears.", removesSpecial: ["Wall of Spears"], statOverrides: { AVDV: "4+/4+" }, incompatibleWith: ["Pikes", "Mixed Weapons"] },
+        { name: "Javelins", cost: 1, statOverrides: { Shoot: "6+", SVRange: "5+/6\"" }, incompatibleWith: ["Mixed Weapons"] },
+        { name: "Mixed Weapons", cost: 2, desc: "The unit carries a mixture of spears and bows, adding Shoot 6+, Range 12\" hitting on 5+. Removes Wall of Spears. Cannot be combined with Veteran or Javelins.", removesSpecial: ["Wall of Spears"], statOverrides: { Shoot: "6+", SVRange: "5+/12\"" }, incompatibleWith: ["Veteran", "Javelins", "Mobile Schiltron (half speed)", "Mobile Schiltron (full speed)"] },
+        { name: "Pikes", cost: 1, desc: "Defence Value becomes 3+ versus Mounted units. Cannot be used with Veteran upgrade. May still form Wall of Spears.", optional: true, incompatibleWith: ["Veteran"] },
+        { name: "Mobile Schiltron (half speed)", cost: 1, desc: "Unit may move in Wall of Spears formation at half speed. Cannot move in rough terrain. Requires the Pikes upgrade.", optional: true, requires: "Pikes", incompatibleWith: ["Mobile Schiltron (full speed)", "Mixed Weapons"] },
+        { name: "Mobile Schiltron (full speed)", cost: 2, desc: "Unit may move in Wall of Spears formation at full speed. Cannot move in rough terrain. Requires the Pikes upgrade.", optional: true, requires: "Pikes", incompatibleWith: ["Mobile Schiltron (half speed)", "Mixed Weapons"] }
+      ]
+    },
+    {
+      name: "Warrior Infantry", cost: 4,
+      stats: { Models: "12", Armour: "2", Courage: "4+", Move: "6+", Attack: "5+", Shoot: "–", MaxMove: "8\"", AVDV: "3+/6", SVRange: "–" },
+      special: "Flexible, Wild Charge, Counter-charge vs Foot & Missiles, Fast",
+      upgrades: [
+        { name: "Fearsome", cost: 2 },
+        { name: "Bloodthirsty", cost: 3 },
+        { name: "Armoured", cost: 2, statOverrides: { Armour: "3" } }
+      ]
+    },
+    {
+      name: "Levied Infantry", cost: 1,
+      stats: { Models: "12", Armour: "1", Courage: "5+", Move: "6+", Attack: "7+", Shoot: "–", MaxMove: "6\"", AVDV: "6/6", SVRange: "–" },
+      special: "Smelly, Go Back To Your Farms",
+      upgrades: [],
+      maxPer24pts: 3
+    }
+  ],
+  "Missile Units": [
+    {
+      name: "Archers", cost: 4,
+      stats: { Models: "12", Armour: "2", Courage: "4+", Move: "6+", Attack: "7+", Shoot: "6+", MaxMove: "6\"", AVDV: "6/5+", SVRange: "5+/18\"" },
+      special: "—",
+      upgrades: [
+        { name: "Veteran", cost: 2, desc: "Shoot Value becomes 4+.", statOverrides: { SVRange: "4+/18\"" } }
+      ]
+    },
+    {
+      name: "Crossbowmen", cost: 4,
+      stats: { Models: "12", Armour: "2", Courage: "4+", Move: "6+", Attack: "7+", Shoot: "7+", MaxMove: "6\"", AVDV: "6/5+", SVRange: "4+/18\"" },
+      special: "—",
+      upgrades: [
+        { name: "Pavises", cost: 2 },
+        { name: "Firearms", cost: -1, desc: "Represents early handgonners using the Crossbowmen profile. Range becomes 12\". May still upgrade to Pavises.", optional: true, statOverrides: { SVRange: "4+/12\"" } }
+      ]
+    },
+    {
+      name: "Skirmishers", cost: 2,
+      stats: { Models: "6", Armour: "1", Courage: "5+", Move: "5+", Attack: "7+", Shoot: "7+", MaxMove: "8\"", AVDV: "6/6", SVRange: "5+/12\"" },
+      special: "Hard to Target, Skirmish, Evade, Fast",
+      upgrades: []
+    }
+  ]
+};
+
+// Optional unit types (Chapter 3) — merged into core categories when enabled
+const OPTIONAL_UNITS = {
+  "Mounted Units": [
+    {
+      name: "Chariots", cost: 6, optional: true,
+      stats: { Models: "1–2", Armour: "4", Courage: "4+", Move: "5+", Attack: "5+", Shoot: "–", MaxMove: "10\"", AVDV: "4+/5+", SVRange: "–" },
+      special: "Counter-charge",
+      note: "Optional rule (Ch.3). Use Heavy Cavalry profile +2 pts. Cannot enter rough terrain, cross linear obstacles, or water except at fords. Use Strength Points rules.",
+      upgrades: []
+    }
+  ],
+  "Missile Units": [
+    {
+      name: "Handgonners", cost: 4, optional: true,
+      stats: { Models: "6", Armour: "2", Courage: "4+", Move: "6+", Attack: "7+", Shoot: "8+", MaxMove: "6\"", AVDV: "6/6", SVRange: "6/12\"" },
+      special: "Bang!, Panic",
+      note: "Optional rule (Ch.3). Purpose-built firearms profile.",
+      upgrades: [
+        { name: "Pavises", cost: 2 }
+      ]
+    },
+    {
+      name: "Slingers", cost: 3, optional: true,
+      stats: { Models: "12", Armour: "2", Courage: "4+", Move: "6+", Attack: "7+", Shoot: "6+", MaxMove: "6\"", AVDV: "6/5+", SVRange: "5+/12\"" },
+      special: "—",
+      note: "Optional rule (Ch.3). Archers profile –1 pt, range reduced to 12\".",
+      upgrades: [
+        { name: "Veteran", cost: 2, desc: "Shoot Value becomes 4+.", statOverrides: { SVRange: "4+/12\"" } }
+      ]
+    }
+  ]
+};
+
+
+// cost: points added to leader's unit. max 2 skills. incompatible pairs cannot both be chosen.
+const LEADER_SKILLS = [
+  { name: "Aggressive",          cost: 1,  desc: "Once per turn, one unit within 12\" may automatically pass an Attack activation." },
+  { name: "Blessed",             cost: 2,  desc: "Once per game, reroll any one complete set of dice rolled by any player." },
+  { name: "Bloodthirsty",        cost: 3,  desc: "Leader's unit: Attack dice rolling 6 cause 2 hits. Cannot take if unit already has Bloodthirsty." },
+  { name: "Braveheart",          cost: 1,  desc: "In Challenges, the Leader is only hit on a 6." },
+  { name: "Brutal",              cost: 1,  desc: "Any unit within 12\" may automatically pass a failed Rally test by removing 1 model." },
+  { name: "Commanding",          cost: 2,  desc: "Once per turn, reroll 1 additional failed Move, Attack, or Shoot activation within 12\" (2 rerolls total)." },
+  { name: "Courageous",          cost: 2,  desc: "Leader's unit may reroll each of its Courage tests once.", incompatibleWith: ["Insipid"] },
+  { name: "Drunkard or Eccentric", cost: 1, desc: "Roll after deployment: 1=Insipid, 2=Vulnerable, 3=No effect, 4=Braveheart, 5=Strong, 6=Lionheart." },
+  { name: "Fearless",            cost: 2,  desc: "Leader's unit is not affected by Fearsome enemy units." },
+  { name: "Fearsome",            cost: 2,  desc: "Leader's unit: enemy Courage tests from this unit's Attacks suffer -1. Cannot take if unit already has Fearsome." },
+  { name: "Impulsive",           cost: 1,  desc: "Once per turn, one unit within 12\" may automatically pass a Move activation." },
+  { name: "Insipid",             cost: -2, desc: "Leader does not grant the usual +1 Courage bonus to units within 12\" (including own unit).", incompatibleWith: ["Courageous"] },
+  { name: "Inspired",            cost: 3,  desc: "Once per turn, reroll 2 additional failed Move, Attack, or Shoot activations within 12\" (3 rerolls total)." },
+  { name: "Knock-kneed",         cost: -1, desc: "When required to Retreat, the Leader's unit must retreat the full distance rather than a half move." },
+  { name: "Lionheart",           cost: 2,  desc: "During Attacks, the Leader's unit may reroll up to 2 failed hit dice.", incompatibleWith: ["Strongsword"] },
+  { name: "Old Wound",           cost: -1, desc: "Reduce the Leader's unit's maximum movement distance by 2\"." },
+  { name: "Patient",             cost: 1,  desc: "Once per turn, one unit within 12\" may choose to ignore a Wild Charge activation." },
+  { name: "Rash",                cost: 1,  desc: "Leader's unit gains Wild Charge. Cannot take if unit already has Wild Charge." },
+  { name: "Strongbow",           cost: 1,  desc: "Once per turn, one unit within 12\" may automatically pass a Shoot activation." },
+  { name: "Strongsword",         cost: 1,  desc: "During Attacks, the Leader's unit may reroll one failed hit dice.", incompatibleWith: ["Lionheart"] },
+  { name: "The Great",           cost: 3,  desc: "Leader's unit automatically passes all Move, Attack, and Shoot activations. Wild Charges, Counter-charges, and Evade tested as normal." },
+  { name: "Vulnerable",          cost: -1, desc: "Leader is killed by Lucky Blows on a result of 2 or 3." },
+  { name: "Weakling",            cost: -2, desc: "Leader's unit rolls 1 fewer dice when Attacking or Shooting." },
+  { name: "Wise",                cost: 1,  desc: "May add or subtract 1 from your total when rolling to decide attacker/defender." }
+];
+
+// Special rule tooltip definitions (extracted from unit profiles, Chapter 2)
+const SPECIAL_RULES = {
+  "Wild Charge": "If an enemy unit is within Attack range during the Activate Wild Charges phase, you must test to activate an Attack against it. If unsuccessful, the unit remains stationary but may test for an ordered Move activation. Cannot be used if Battered.",
+  "Counter-charge": "When an enemy has successfully rolled to Attack this unit, but before it moves, test for a Counter-charge at 7+. If successful, both units meet at a proportionate midpoint and both count as Attacking. If failed, stand in place for the charge. Cannot be used if Battered.",
+  "Counter-charge vs Foot & Missiles": "As Counter-charge, but only usable against Foot and Missile units — not against Mounted units. Cannot be used if Battered.",
+  "Skirmish": "As an ordered activation (7+), the unit may make a half Move and Shoot in either order. All models Shoot with –1 to their dice scores.",
+  "Evade": "When an enemy has successfully rolled to Attack this unit, test to Evade at 7+. If successful, carry out a Skirmish action targeting the attacker and move away. The attacker pursues its full charge distance. If Evade fails, stand in place and Armour becomes 1 during the Attack. Cannot be used if Battered.",
+  "Flexible": "This unit uses its normal Attack, Defence, and Armour profile when fighting in rough terrain.",
+  "Wall of Spears": "Requires at least 6 models in the unit. On a Move order, form into a two-rank formation. Cannot form in rough terrain or cover, and cannot move while formed. Armour increases by 1 against Attacks (not Shooting). If an Attack ends with both units in contact and the Wall is not Battered or below 6 models, the enemy must always Retreat. Formation breaks if the unit is Battered, must Retreat, or drops below 6 models.",
+  "Fast": "This unit does not halve its movement distance in rough terrain.",
+  "Hard to Target": "Counts as Armour 2 versus Shooting, and may only be targeted by shooting within 12\".",
+  "Smelly": "No special rules for this, they just are.",
+  "Go Back To Your Farms": "No more than 3 Levied Infantry units may be selected in a 24-point Warband (scaled proportionally for other points values).",
+  "Bang!": "All units count as Armour 1 against Shooting by this unit (Armour 2 if in cover).",
+  "Panic": "When this unit Shoots, the target unit must take a Courage test regardless of the number of hits inflicted.",
+};
+
+// Upgrade tooltip definitions (Chapter 2, Unit Upgrade sections)
+const UPGRADE_RULES = {
+  "Fearsome":          "Courage tests caused by this unit Attacking (not Shooting) suffer an additional -1. Cancelled if two Fearsome units face each other.",
+  "Bloodthirsty":      "Any Attack dice (not Defence or Shooting) rolling a 6 cause 2 hits instead of 1.",
+  "Javelins Only":     "Most units are armed with bows, but these are instead armed with javelins, with range reduced to 6\".",
+  "Veteran":           "Attack Value improves by one step. The unit may no longer form a Wall of Spears (if applicable).",
+  "Javelins":          "Adds Shoot 6+ / Range 6\" hitting on 5+.",
+  "Mixed Weapons":     "The unit carries a mixture of spears and bows, adding Shoot 6+, Range 12\" hitting on 5+. Removes Wall of Spears. Cannot be combined with Veteran or Javelins.",
+  "Armoured":          "The unit is better armoured than most Warrior Infantry. Armour becomes 3.",
+  "Pavises":           "Increases Armour by 2 against Shooting (to 4) and by 1 against Attacks (to 3). Bonus does not apply in rough terrain or cover.",
+};
+
+let roster = [];
+let nextId = 1;
+let leaderSkills = []; // chosen leader skill names
+
+function renderCategories() {
+  const container = document.getElementById('unitCategories');
+  container.innerHTML = '';
+  const showOptional = document.getElementById('optionalUnits').checked;
+
+  // Merge optional units into their matching core categories
+  const allUnits = {};
+  Object.entries(UNITS).forEach(([cat, units]) => {
+    allUnits[cat] = [...units];
+  });
+  if (showOptional) {
+    Object.entries(OPTIONAL_UNITS).forEach(([cat, units]) => {
+      if (allUnits[cat]) allUnits[cat] = [...allUnits[cat], ...units];
+      else allUnits[cat] = [...units];
+    });
+  }
+
+  Object.entries(allUnits).forEach(([cat, units]) => {
+    const catDiv = document.createElement('div');
+    catDiv.className = 'category';
+    const h3 = document.createElement('h3');
+    h3.textContent = cat;
+    catDiv.appendChild(h3);
+
+    units.forEach(u => {
+      const row = document.createElement('div');
+      row.className = 'unit-row';
+
+      const info = document.createElement('button');
+      info.className = 'info-btn';
+      info.textContent = '▾';
+      info.title = 'Show stats';
+
+      const name = document.createElement('span');
+      name.className = 'name';
+      name.textContent = u.name;
+
+      const cost = document.createElement('span');
+      cost.className = 'cost';
+      cost.textContent = u.cost + ' pts';
+
+      const addBtn = document.createElement('button');
+      addBtn.className = 'add';
+      addBtn.textContent = '+';
+      addBtn.title = 'Add this unit';
+
+      row.appendChild(name);
+      row.appendChild(cost);
+      row.appendChild(info);
+      row.appendChild(addBtn);
+      catDiv.appendChild(row);
+
+      // Expandable detail panel: stats and special rules only
+      const desc = document.createElement('div');
+      desc.className = 'unit-desc';
+
+      const statsGrid = document.createElement('div');
+      statsGrid.className = 'stats-grid';
+      const STAT_ORDER = [
+        ['Models', 'Models'],   ['Move', 'Move'],   ['MaxMove', 'Max Move'],
+        ['Armour', 'Armour'],   ['Attack', 'Attack'], ['AVDV', 'AV/DV'],
+        ['Courage', 'Courage'], ['Shoot', 'Shoot'],  ['SVRange', 'SV/Range']
+      ];
+      STAT_ORDER.forEach(([key, label]) => {
+        const cell = document.createElement('div');
+        cell.className = 'stats-cell';
+        cell.innerHTML = '<span class="stats-key">' + label + '</span><span class="stats-val">' + (u.stats[key] || '–') + '</span>';
+        statsGrid.appendChild(cell);
+      });
+      desc.appendChild(statsGrid);
+
+      if (u.note) {
+        const noteLine = document.createElement('div');
+        noteLine.className = 'info-line';
+        noteLine.style.fontStyle = 'italic';
+        noteLine.style.color = '#8b1a1a';
+        noteLine.textContent = '⚠ ' + u.note;
+        desc.appendChild(noteLine);
+      }
+
+      const specialLine = document.createElement('div');
+      specialLine.className = 'info-line';
+      const specialLabel = document.createElement('strong');
+      specialLabel.textContent = 'Special: ';
+      specialLine.appendChild(specialLabel);
+      u.special.split(/,\s*/).forEach((ruleName, i, arr) => {
+        const def = SPECIAL_RULES[ruleName.trim()];
+        if (def) {
+          const wrapper = document.createElement('span');
+          wrapper.className = 'rule-tip-wrap';
+
+          const trigger = document.createElement('span');
+          trigger.textContent = ruleName.trim();
+          trigger.className = 'rule-tip';
+
+          const popup = document.createElement('span');
+          popup.className = 'rule-popup';
+          popup.textContent = def;
+
+          trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = popup.classList.contains('open');
+            // Close all other popups
+            document.querySelectorAll('.rule-popup.open').forEach(p => p.classList.remove('open'));
+            if (!isOpen) popup.classList.add('open');
+          });
+
+          wrapper.appendChild(trigger);
+          wrapper.appendChild(popup);
+          specialLine.appendChild(wrapper);
+        } else {
+          specialLine.appendChild(document.createTextNode(ruleName.trim()));
+        }
+        if (i < arr.length - 1) specialLine.appendChild(document.createTextNode(', '));
+      });
+      desc.appendChild(specialLine);
+
+      if (u.upgrades && u.upgrades.length) {
+        const showOptional = document.getElementById('optionalUnits').checked;
+        const visibleUpgrades = u.upgrades.filter(up => !up.optional || showOptional);
+        if (visibleUpgrades.length) {
+        const upgradesLine = document.createElement('div');
+        upgradesLine.className = 'info-line';
+        const upgradesLabel = document.createElement('strong');
+        upgradesLabel.textContent = 'Upgrades: ';
+        upgradesLine.appendChild(upgradesLabel);
+        visibleUpgrades.forEach((up, i) => {
+          const sign = up.cost >= 0 ? '+' : '';
+          const def = up.desc || UPGRADE_RULES[up.name];
+          if (def) {
+            const wrap = document.createElement('span');
+            wrap.className = 'rule-tip-wrap';
+            const trigger = document.createElement('span');
+            trigger.className = 'rule-tip';
+            trigger.textContent = up.name + ' (' + sign + up.cost + ')';
+            const popup = document.createElement('span');
+            popup.className = 'rule-popup';
+            popup.textContent = def;
+            trigger.addEventListener('click', e => {
+              e.stopPropagation();
+              const isOpen = popup.classList.contains('open');
+              document.querySelectorAll('.rule-popup.open').forEach(p => p.classList.remove('open'));
+              if (!isOpen) popup.classList.add('open');
+            });
+            wrap.appendChild(trigger);
+            wrap.appendChild(popup);
+            upgradesLine.appendChild(wrap);
+          } else {
+            upgradesLine.appendChild(document.createTextNode(up.name + ' (' + sign + up.cost + ')'));
+          }
+          if (i < visibleUpgrades.length - 1) upgradesLine.appendChild(document.createTextNode(', '));
+        });
+        desc.appendChild(upgradesLine);
+        } // end if visibleUpgrades.length
+      } // end if u.upgrades
+
+      catDiv.appendChild(desc);
+
+      info.addEventListener('click', () => {
+        const open = desc.classList.toggle('open');
+        info.textContent = open ? '▴' : '▾';
+        info.title = open ? 'Hide stats' : 'Show stats';
+      });
+
+      addBtn.addEventListener('click', () => {
+        addUnit(u);
+      });
+    });
+
+    container.appendChild(catDiv);
+  });
+}
+
+function showBlockedNote(message) {
+  const warn = document.getElementById('pointsCapWarn');
+  warn.textContent = '⚠ ' + message;
+  warn.style.display = 'block';
+}
+
+function hideBlockedNote() {
+  document.getElementById('pointsCapWarn').style.display = 'none';
+}
+
+function currentTotal() {
+  return roster.reduce((sum, r) => sum + r.cost, 0);
+}
+
+function capValue() {
+  return parseInt(document.getElementById('pointsCap').value, 10);
+}
+
+function addUnit(u) {
+  if (u.maxPer24pts) {
+    const cap = capValue();
+    const scale = cap > 0 ? cap / 24 : 1;
+    const limit = Math.max(1, Math.round(u.maxPer24pts * scale));
+    const current = roster.filter(r => r.name === u.name).length;
+    if (current >= limit) {
+      showBlockedNote(u.name + ' is limited to ' + limit + ' unit(s) in a ' + (cap > 0 ? cap : 24) + '-point Warband.');
+      return;
+    }
+  }
+  const cap = capValue();
+  if (cap > 0 && currentTotal() + u.cost > cap) {
+    showBlockedNote('Cannot enlist ' + u.name + ' (' + u.cost + ' pts) — would exceed the ' + cap + '-point limit.');
+    return;
+  }
+  roster.push({
+    id: nextId++,
+    name: u.name,
+    customName: null,
+    baseCost: u.cost,
+    availableUpgrades: (u.upgrades || []).filter(up => !up.optional || document.getElementById('optionalUnits').checked),
+    upgrades: [],       // chosen upgrades
+    cost: u.cost,
+    isLeader: roster.length === 0,
+    hasBanner: false,
+    upgradesOpen: false
+  });
+  hideBlockedNote();
+  renderRoster();
+}
+
+function removeUnit(id) {
+  const unit = roster.find(r => r.id === id);
+  if (unit && unit.isLeader) leaderSkills = [];
+  roster = roster.filter(r => r.id !== id);
+  renderRoster();
+}
+
+function recalcCost(item) {
+  const skillsCost = item.isLeader ? leaderSkills.reduce((sum, name) => {
+    const sk = LEADER_SKILLS.find(s => s.name === name);
+    return sum + (sk ? sk.cost : 0);
+  }, 0) : 0;
+  item.cost = item.baseCost + item.upgrades.reduce((s, u) => s + u.cost, 0) + (item.hasBanner ? 1 : 0) + skillsCost;
+}
+
+function renderRoster() {
+  // Always recalc all costs before rendering so leader skills, upgrades, banner are reflected
+  roster.forEach(item => recalcCost(item));
+
+  const list = document.getElementById('rosterList');
+  const emptyNote = document.getElementById('emptyNote');
+  list.innerHTML = '';
+
+  const hasLeader = roster.some(r => r.isLeader);
+
+  if (roster.length === 0) {
+    emptyNote.style.display = 'block';
+  } else {
+    emptyNote.style.display = 'none';
+    roster.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'roster-item';
+      if (item.isLeader) li.classList.add('is-leader');
+
+      // Single top row: name · badge · spacer · cost · buttons
+      const topRow = document.createElement('div');
+      topRow.className = 'ri-top';
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.className = 'ri-name-input';
+      nameInput.value = item.customName || item.name;
+      nameInput.placeholder = item.name;
+      nameInput.title = 'Rename this unit';
+      nameInput.addEventListener('input', () => {
+        const trimmed = nameInput.value.trim();
+        item.customName = (trimmed && trimmed !== item.name) ? trimmed : null;
+      });
+      nameInput.addEventListener('blur', () => {
+        if (!nameInput.value.trim()) {
+          nameInput.value = item.name;
+          item.customName = null;
+        }
+        renderRoster();
+      });
+      topRow.appendChild(nameInput);
+
+      const spacer = document.createElement('span');
+      spacer.className = 'ri-spacer';
+      topRow.appendChild(spacer);
+
+      const costEl = document.createElement('span');
+      costEl.className = 'ri-cost';
+      costEl.textContent = item.cost + ' pts';
+      topRow.appendChild(costEl);
+
+      // Buttons
+      const btnRow = document.createElement('div');
+      btnRow.className = 'ri-buttons';
+
+      const leaderBtn = document.createElement('button');
+      leaderBtn.className = 'leader-btn' + (item.isLeader ? ' active' : '');
+      leaderBtn.title = item.isLeader ? 'Remove as Leader' : 'Nominate as Leader';
+      leaderBtn.textContent = '♛';
+      leaderBtn.addEventListener('click', () => {
+        const wasLeader = item.isLeader;
+        const oldLeader = roster.find(r => r.isLeader);
+        if (oldLeader) { oldLeader.isLeader = false; recalcCost(oldLeader); }
+        roster.forEach(r => r.isLeader = false);
+        item.isLeader = !wasLeader;
+        if (item.isLeader && item.hasBanner) item.hasBanner = false;
+        recalcCost(item);
+        renderRoster();
+      });
+
+      const bannerIneligible = ['Skirmishers', 'Levied Infantry'].includes(item.name) || item.isLeader;
+      const bannerBtn = document.createElement('button');
+      bannerBtn.className = 'banner-btn' + (item.hasBanner ? ' active' : '');
+      bannerBtn.textContent = '⚑';
+      if (bannerIneligible) {
+        bannerBtn.disabled = true;
+        bannerBtn.title = item.isLeader
+          ? 'Leader\'s unit may not take a Holy Man or Banner'
+          : 'Skirmishers and Levied Infantry may not take a Holy Man or Banner';
+      } else {
+        bannerBtn.title = item.hasBanner ? 'Remove Holy Man / Banner (+1 pt)' : 'Add Holy Man / Banner (+1 pt)';
+        bannerBtn.addEventListener('click', () => {
+          if (!item.hasBanner) {
+            const cap = capValue();
+            if (cap > 0 && currentTotal() + 1 > cap) {
+              showBlockedNote('Cannot add Holy Man / Banner (+1 pt) — would exceed the ' + cap + '-point limit.');
+              return;
+            }
+          }
+          item.hasBanner = !item.hasBanner;
+          recalcCost(item);
+          hideBlockedNote();
+          renderRoster();
+        });
+      }
+
+      btnRow.appendChild(leaderBtn);
+      btnRow.appendChild(bannerBtn);
+
+      // Subtitle line: base type (if renamed), upgrades, leader skills, banner
+      const subtitleParts = [];
+      if (item.upgrades.length) subtitleParts.push(...item.upgrades.map(u => u.name + ' (' + (u.cost >= 0 ? '+' : '') + u.cost + ')'));
+      if (item.isLeader && leaderSkills.length) {
+        subtitleParts.push(...leaderSkills.map(sname => {
+          const sk = LEADER_SKILLS.find(s => s.name === sname);
+          return sname + ' (' + (sk && sk.cost >= 0 ? '+' : '') + (sk ? sk.cost : 0) + ')';
+        }));
+      }
+      if (item.hasBanner) subtitleParts.push('Holy Man / Banner (+1)');
+
+      // Upgrade checkboxes (inline, collapsible)
+      let upWrap = null;
+      if (item.availableUpgrades && item.availableUpgrades.length) {
+        upWrap = document.createElement('div');
+        upWrap.className = 'inline-upgrades';
+        upWrap.style.display = item.upgradesOpen ? '' : 'none';
+        const upLabel = document.createElement('span');
+        upLabel.className = 'inline-upgrades-label';
+        upLabel.textContent = 'Upgrades:';
+        upWrap.appendChild(upLabel);
+
+        item.availableUpgrades.forEach(up => {
+          const isChosen = item.upgrades.some(u => u.name === up.name);
+          const incompatChosen = up.incompatibleWith && up.incompatibleWith.some(n => item.upgrades.some(u => u.name === n));
+          const requirementMissing = up.requires && !item.upgrades.some(u => u.name === up.requires);
+          const disabled = (incompatChosen || requirementMissing) && !isChosen;
+
+          const row = document.createElement('div');
+          row.className = 'upgrade-check' + (disabled ? ' dimmed' : '');
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.checked = isChosen;
+          cb.disabled = disabled;
+          if (requirementMissing && !isChosen) {
+            row.title = 'Requires ' + up.requires + ' to be selected first.';
+          }
+          cb.addEventListener('change', () => {
+            if (cb.checked) {
+              const cap = capValue();
+              if (up.cost > 0 && cap > 0 && currentTotal() + up.cost > cap) {
+                cb.checked = false;
+                showBlockedNote('Cannot add ' + up.name + ' (+' + up.cost + ' pts) — would exceed the ' + cap + '-point limit.');
+                return;
+              }
+              if (!item.upgrades.some(u => u.name === up.name)) item.upgrades.push(up);
+            } else {
+              item.upgrades = item.upgrades.filter(u => u.name !== up.name);
+              // Remove any upgrades that required this one
+              item.upgrades = item.upgrades.filter(u => !u.requires || u.requires !== up.name);
+            }
+            recalcCost(item);
+            hideBlockedNote();
+            renderRoster();
+          });
+          row.appendChild(cb);
+          const sign = up.cost >= 0 ? '+' : '';
+          const def = up.desc || UPGRADE_RULES[up.name];
+          if (def) {
+            const wrap = document.createElement('span');
+            wrap.className = 'rule-tip-wrap';
+            const trigger = document.createElement('span');
+            trigger.className = 'rule-tip';
+            trigger.textContent = ' ' + up.name + ' (' + sign + up.cost + ')';
+            const popup = document.createElement('span');
+            popup.className = 'rule-popup';
+            popup.textContent = def;
+            trigger.addEventListener('click', e => {
+              e.stopPropagation();
+              const isOpen = popup.classList.contains('open');
+              document.querySelectorAll('.rule-popup.open').forEach(p => p.classList.remove('open'));
+              if (!isOpen) popup.classList.add('open');
+            });
+            wrap.appendChild(trigger);
+            wrap.appendChild(popup);
+            row.appendChild(wrap);
+          } else {
+            row.appendChild(document.createTextNode(' ' + up.name + ' (' + sign + up.cost + ')'));
+          }
+          upWrap.appendChild(row);
+        });
+
+        const expandBtn = document.createElement('button');
+        expandBtn.className = 'expand-btn';
+        expandBtn.textContent = item.upgradesOpen ? '▴' : '▾';
+        expandBtn.title = item.upgradesOpen ? 'Hide upgrades' : 'Show upgrades';
+        expandBtn.addEventListener('click', () => {
+          item.upgradesOpen = !item.upgradesOpen;
+          upWrap.style.display = item.upgradesOpen ? '' : 'none';
+          expandBtn.textContent = item.upgradesOpen ? '▴' : '▾';
+          expandBtn.title = item.upgradesOpen ? 'Hide upgrades' : 'Show upgrades';
+        });
+        btnRow.appendChild(expandBtn);
+      } else {
+        const expandBtn = document.createElement('button');
+        expandBtn.className = 'expand-btn';
+        expandBtn.textContent = '▾';
+        expandBtn.disabled = true;
+        expandBtn.title = 'No upgrades available for this unit';
+        btnRow.appendChild(expandBtn);
+      }
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove';
+      removeBtn.textContent = '×';
+      removeBtn.title = 'Dismiss this unit';
+      removeBtn.addEventListener('click', () => removeUnit(item.id));
+      btnRow.appendChild(removeBtn);
+
+      topRow.appendChild(btnRow);
+      li.appendChild(topRow);
+
+      if (subtitleParts.length) {
+        const subEl = document.createElement('div');
+        subEl.className = 'ri-type';
+        subEl.textContent = subtitleParts.join(', ');
+        li.appendChild(subEl);
+      }
+
+      if (upWrap) li.appendChild(upWrap);
+      list.appendChild(li);
+    });
+  }
+
+  updateTotals();
+  renderLeaderSkills();
+}
+
+function updateTotals() {
+  const total = roster.reduce((sum, r) => sum + r.cost, 0);
+  const cap = parseInt(document.getElementById('pointsCap').value, 10);
+
+  document.getElementById('totalLabel').textContent = total;
+  document.getElementById('unitCount').textContent = roster.length;
+
+  const capLabel = document.getElementById('capLabel');
+  if (cap > 0) {
+    capLabel.innerHTML = '/ ' + cap + (total > cap ? ' <span style="color:var(--rubric);font-weight:600;">[' + (total - cap) + ' over]</span>' : '');
+  } else {
+    capLabel.textContent = '';
+  }
+
+  // Leader warning
+  const leaderWarn = document.getElementById('leaderWarn');
+  if (roster.length > 0 && !roster.some(r => r.isLeader)) {
+    leaderWarn.style.display = 'block';
+  } else {
+    leaderWarn.style.display = 'none';
+  }
+
+  // Unit count warning (4–10 units, fixed per rulebook)
+  const countWarn = document.getElementById('unitCountWarn');
+  const count = roster.length;
+  if (count > 0 && count < 4) {
+    countWarn.textContent = '⚠ Warband must have at least 4 units (' + (4 - count) + ' more needed).';
+    countWarn.style.display = 'block';
+  } else if (count > 10) {
+    countWarn.textContent = '⚠ Warband must have no more than 10 units (' + (count - 10) + ' too many).';
+    countWarn.style.display = 'block';
+  } else {
+    countWarn.style.display = 'none';
+  }
+
+  // Points cap warning clears automatically once back within budget —
+  // covers removing a unit/upgrade, dropping the banner, or raising the cap.
+  if (cap === 0 || total <= cap) {
+    hideBlockedNote();
+  }
+}
+
+function renderLeaderSkills() {
+  const hasLeader = roster.some(r => r.isLeader);
+  const container = document.getElementById('leaderSkillsList');
+  container.innerHTML = '';
+
+  if (!hasLeader) {
+    leaderSkills = [];
+    document.getElementById('leaderSkillsCount').textContent = '0 / 2';
+    const msg = document.createElement('div');
+    msg.style.cssText = 'grid-column:1/-1; font-style:italic; color:#8a7e6c; font-size:0.85rem;';
+    msg.textContent = 'Nominate a Leader (♛) to select skills.';
+    container.appendChild(msg);
+    return;
+  }
+
+  // Update counter
+  document.getElementById('leaderSkillsCount').textContent = leaderSkills.length + ' / 2';
+
+  const skillsCost = leaderSkills.reduce((sum, name) => {
+    const sk = LEADER_SKILLS.find(s => s.name === name);
+    return sum + (sk ? sk.cost : 0);
+  }, 0);
+
+  LEADER_SKILLS.forEach(sk => {
+    const isChosen = leaderSkills.includes(sk.name);
+    const incompatChosen = sk.incompatibleWith && sk.incompatibleWith.some(n => leaderSkills.includes(n));
+    const atMax = leaderSkills.length >= 2 && !isChosen;
+    const disabled = (atMax || incompatChosen) && !isChosen;
+
+    const row = document.createElement('div');
+    row.className = 'upgrade-check' + (disabled ? ' dimmed' : '');
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = isChosen;
+    cb.disabled = disabled;
+    cb.addEventListener('change', () => {
+      if (cb.checked) {
+        const cap = capValue();
+        if (sk.cost > 0 && cap > 0 && currentTotal() + sk.cost > cap) {
+          cb.checked = false;
+          showBlockedNote('Cannot add ' + sk.name + ' (+' + sk.cost + ' pts) — would exceed the ' + cap + '-point limit.');
+          return;
+        }
+        leaderSkills.push(sk.name);
+      } else {
+        leaderSkills = leaderSkills.filter(n => n !== sk.name);
+      }
+      const leaderUnit = roster.find(r => r.isLeader);
+      if (leaderUnit) recalcCost(leaderUnit);
+      hideBlockedNote();
+      renderLeaderSkills();
+      renderRoster();
+    });
+    row.appendChild(cb);
+
+    const sign = sk.cost >= 0 ? '+' : '';
+
+    const tipWrap = document.createElement('span');
+    tipWrap.className = 'rule-tip-wrap';
+
+    const trigger = document.createElement('span');
+    trigger.className = 'rule-tip';
+    trigger.textContent = ' ' + sk.name + ' (' + sign + sk.cost + ')';
+
+    let popupText = sk.desc;
+    if (sk.incompatibleWith) popupText += ' Incompatible with: ' + sk.incompatibleWith.join(', ') + '.';
+
+    const popup = document.createElement('span');
+    popup.className = 'rule-popup';
+    popup.textContent = popupText;
+
+    trigger.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = popup.classList.contains('open');
+      document.querySelectorAll('.rule-popup.open').forEach(p => p.classList.remove('open'));
+      if (!isOpen) popup.classList.add('open');
+    });
+
+    tipWrap.appendChild(trigger);
+    tipWrap.appendChild(popup);
+    row.appendChild(tipWrap);
+    container.appendChild(row);
+  });
+}
+document.getElementById('pointsCap').addEventListener('input', updateTotals);
+
+document.getElementById('clearAll').addEventListener('click', () => {
+  roster = [];
+  renderRoster();
+});
+
+document.getElementById('exportTxt').addEventListener('click', () => {
+  const name = document.getElementById('warbandName').value.trim() || 'Unnamed Retinue';
+  const cap = parseInt(document.getElementById('pointsCap').value, 10);
+  const total = roster.reduce((sum, r) => sum + r.cost, 0);
+
+  let text = name + '\n';
+  text += '='.repeat(name.length) + '\n\n';
+  if (roster.length === 0) {
+    text += '(No units enlisted)\n';
+  } else {
+    roster.forEach(r => {
+      const displayName = r.customName ? r.customName + ' (' + r.name + ')' : r.name;
+      let line = '- ' + displayName + (r.isLeader ? ' [LEADER]' : '') + (r.hasBanner ? ' [BANNER +1]' : '') + ' (' + r.cost + ' pts)';
+      if (r.upgrades && r.upgrades.length) {
+        line += '\n    upgrades: ' + r.upgrades.map(u => u.name + ' (' + (u.cost >= 0 ? '+' : '') + u.cost + ')').join(', ');
+      }
+      if (r.isLeader && leaderSkills.length) {
+        line += '\n    leader skills: ' + leaderSkills.map(sname => {
+          const sk = LEADER_SKILLS.find(s => s.name === sname);
+          return sname + ' (' + (sk.cost >= 0 ? '+' : '') + sk.cost + ')';
+        }).join(', ');
+      }
+      text += line + '\n';
+    });
+  }
+  text += '\nTotal: ' + total + ' pts';
+  if (cap > 0) {
+    text += ' / ' + cap + ' pts limit';
+    if (total > cap) text += '  [OVER LIMIT by ' + (total - cap) + ']';
+  }
+  text += '\n';
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('exportTxt');
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }).catch(() => {
+    const btn = document.getElementById('exportTxt');
+    const original = btn.textContent;
+    btn.textContent = 'Copy failed';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  });
+});
+
+const STAT_ORDER_PRINT = [
+  ['Models', 'Models'],   ['Move', 'Move'],   ['MaxMove', 'Max Move'],
+  ['Armour', 'Armour'],   ['Attack', 'Attack'], ['AVDV', 'AV/DV'],
+  ['Courage', 'Courage'], ['Shoot', 'Shoot'],  ['SVRange', 'SV/Range']
+];
+
+function findUnitDef(name) {
+  for (const list of [Object.values(UNITS).flat(), Object.values(OPTIONAL_UNITS).flat()]) {
+    const found = list.find(u => u.name === name);
+    if (found) return found;
+  }
+  return null;
+}
+
+function renderPrintView() {
+  const view = document.getElementById('printView');
+  const name = document.getElementById('warbandName').value.trim() || 'Your Warband';
+  const cap = parseInt(document.getElementById('pointsCap').value, 10);
+  const total = roster.reduce((sum, r) => sum + r.cost, 0);
+
+  view.innerHTML = '';
+
+  const h1 = document.createElement('h1');
+  h1.textContent = name;
+  view.appendChild(h1);
+
+  const meta = document.createElement('div');
+  meta.className = 'print-meta';
+  meta.textContent = 'Points: ' + total + (cap > 0 ? ' / ' + cap : '') + ' · Units: ' + roster.length;
+  view.appendChild(meta);
+
+  const unitsWrap = document.createElement('div');
+  unitsWrap.className = 'print-units';
+
+  // Collect rule names used across the warband for the rules glossary
+  const usedSpecialRules = new Set();
+  const usedUpgradeRules = new Map(); // name -> desc
+
+  roster.forEach(item => {
+    const def = findUnitDef(item.name);
+    const unitDiv = document.createElement('div');
+    unitDiv.className = 'print-unit';
+
+    const h3 = document.createElement('h3');
+    const titleSpan = document.createElement('span');
+    const displayName = item.customName || item.name;
+    titleSpan.textContent = displayName + (item.isLeader ? ' (Leader)' : '');
+    const costSpan = document.createElement('span');
+    costSpan.textContent = item.cost + ' pts';
+    h3.appendChild(titleSpan);
+    h3.appendChild(costSpan);
+    unitDiv.appendChild(h3);
+
+    if (def && def.stats) {
+      const effectiveStats = Object.assign({}, def.stats);
+      if (item.upgrades && item.upgrades.length) {
+        item.upgrades.forEach(u => {
+          if (u.statOverrides) Object.assign(effectiveStats, u.statOverrides);
+        });
+      }
+      const grid = document.createElement('div');
+      grid.className = 'print-stats-grid';
+      STAT_ORDER_PRINT.forEach(([key, label]) => {
+        const cell = document.createElement('div');
+        cell.className = 'print-stats-cell';
+        cell.innerHTML = '<span class="print-stats-key">' + label + '</span><span class="print-stats-val">' + (effectiveStats[key] || '–') + '</span>';
+        grid.appendChild(cell);
+      });
+      unitDiv.appendChild(grid);
+    }
+
+    // Determine which special rules are removed by the unit's chosen upgrades
+    const removedSpecials = new Set();
+    if (item.upgrades && item.upgrades.length) {
+      item.upgrades.forEach(u => {
+        if (u.removesSpecial) u.removesSpecial.forEach(r => removedSpecials.add(r));
+      });
+    }
+
+    if (def && def.special && def.special !== '—') {
+      const remainingSpecials = def.special.split(/,\s*/).map(r => r.trim()).filter(r => !removedSpecials.has(r));
+      remainingSpecials.forEach(r => usedSpecialRules.add(r));
+      if (remainingSpecials.length) {
+        const specialLine = document.createElement('div');
+        specialLine.className = 'print-line';
+        specialLine.innerHTML = '<strong>Special:</strong> ' + remainingSpecials.join(', ');
+        unitDiv.appendChild(specialLine);
+      }
+    }
+
+    if (item.upgrades && item.upgrades.length) {
+      item.upgrades.forEach(u => {
+        const upDesc = u.desc || UPGRADE_RULES[u.name];
+        if (upDesc) {
+          const key = u.name + '||' + upDesc;
+          const existing = usedUpgradeRules.get(key);
+          if (existing) {
+            if (!existing.sources.includes(item.name)) existing.sources.push(item.name);
+          } else {
+            usedUpgradeRules.set(key, { name: u.name, desc: upDesc, sources: [item.name] });
+          }
+        }
+      });
+      const upLine = document.createElement('div');
+      upLine.className = 'print-line';
+      upLine.innerHTML = '<strong>Upgrades:</strong> ' + item.upgrades.map(u => u.name + ' (' + (u.cost >= 0 ? '+' : '') + u.cost + ')').join(', ');
+      unitDiv.appendChild(upLine);
+    }
+
+    if (item.isLeader && leaderSkills.length) {
+      const skLine = document.createElement('div');
+      skLine.className = 'print-line';
+      skLine.innerHTML = '<strong>Leader skills:</strong> ' + leaderSkills.map(sname => {
+        const sk = LEADER_SKILLS.find(s => s.name === sname);
+        if (sk) {
+          const key = sk.name + '||' + sk.desc;
+          const existing = usedUpgradeRules.get(key);
+          if (existing) {
+            if (!existing.sources.includes('Leader Skill')) existing.sources.push('Leader Skill');
+          } else {
+            usedUpgradeRules.set(key, { name: sk.name, desc: sk.desc, sources: ['Leader Skill'] });
+          }
+        }
+        return sname + ' (' + (sk && sk.cost >= 0 ? '+' : '') + (sk ? sk.cost : 0) + ')';
+      }).join(', ');
+      unitDiv.appendChild(skLine);
+    }
+
+    if (item.hasBanner) {
+      const bnLine = document.createElement('div');
+      bnLine.className = 'print-line';
+      bnLine.innerHTML = '<strong>Holy Man / Banner</strong> (+1 pt)';
+      unitDiv.appendChild(bnLine);
+    }
+
+    unitsWrap.appendChild(unitDiv);
+  });
+
+  view.appendChild(unitsWrap);
+
+  if (roster.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.fontStyle = 'italic';
+    empty.textContent = 'No units enlisted.';
+    view.appendChild(empty);
+  }
+
+  // Rules glossary
+  const hasLeaderInPrint = roster.some(r => r.isLeader);
+  if (usedSpecialRules.size || usedUpgradeRules.size || hasLeaderInPrint) {
+    const rulesSection = document.createElement('div');
+    rulesSection.className = 'print-rules';
+    const h2 = document.createElement('h2');
+    h2.textContent = 'Rules Reference';
+    rulesSection.appendChild(h2);
+
+    if (hasLeaderInPrint) {
+      const leaderEntry = document.createElement('div');
+      leaderEntry.className = 'print-rule-entry';
+      leaderEntry.innerHTML = '<strong>Leader:</strong> Each turn, you may reroll one failed Move, Attack, or Shoot test (no other tests) within 12" of your Leader\'s model, unless the Leader is Battered. This reroll may be applied to the Leader\'s own unit. Leaders also give +1 to all Courage tests for units within 12" (including the Leader\'s own unit) unless Battered, and may issue Challenges.';
+      rulesSection.appendChild(leaderEntry);
+    }
+
+    Array.from(usedSpecialRules).sort().forEach(name => {
+      const def = SPECIAL_RULES[name];
+      if (!def) return;
+      const entry = document.createElement('div');
+      entry.className = 'print-rule-entry';
+      entry.innerHTML = '<strong>' + name + ':</strong> ' + def;
+      rulesSection.appendChild(entry);
+    });
+
+    // Group upgrade/skill entries by name to detect collisions (same name, different rule text)
+    const grouped = {};
+    Array.from(usedUpgradeRules.values()).forEach(entry => {
+      if (!grouped[entry.name]) grouped[entry.name] = [];
+      if (!grouped[entry.name].some(e => e.desc === entry.desc)) {
+        grouped[entry.name].push(entry);
+      }
+    });
+
+    function sourceLabel(sources) {
+      const set = new Set(sources);
+      if (set.has('Heavy Infantry') && set.has('Light Infantry')) {
+        set.delete('Heavy Infantry');
+        set.delete('Light Infantry');
+        set.add('Infantry');
+      }
+      return Array.from(set).join(' / ');
+    }
+
+    Object.keys(grouped).sort().forEach(name => {
+      const variants = grouped[name];
+      variants.forEach(v => {
+        const label = variants.length > 1 ? name + ' (' + sourceLabel(v.sources) + ')' : name;
+        const entry = document.createElement('div');
+        entry.className = 'print-rule-entry';
+        entry.innerHTML = '<strong>' + label + ':</strong> ' + v.desc;
+        rulesSection.appendChild(entry);
+      });
+    });
+
+    view.appendChild(rulesSection);
+  }
+
+  window.print();
+}
+
+document.getElementById('printMode').addEventListener('click', renderPrintView);
+
+document.getElementById('leaderSkillsToggle').addEventListener('click', () => {
+  const list = document.getElementById('leaderSkillsList');
+  const btn = document.getElementById('leaderSkillsToggle');
+  const open = list.style.display !== 'none';
+  list.style.display = open ? 'none' : '';
+  btn.textContent = open ? '▾' : '▴';
+});
+
+document.getElementById('warbandName').addEventListener('input', () => {
+  const name = document.getElementById('warbandName').value.trim();
+  document.getElementById('rosterHeading').textContent = name || 'Your Warband';
+});
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.rule-popup.open').forEach(p => p.classList.remove('open'));
+});
+
+document.getElementById('optionalUnits').addEventListener('change', () => {
+  refreshAvailableUpgrades();
+  renderCategories();
+});
+
+function refreshAvailableUpgrades() {
+  const showOptional = document.getElementById('optionalUnits').checked;
+  roster.forEach(item => {
+    const def = findUnitDef(item.name);
+    if (!def) return;
+    item.availableUpgrades = (def.upgrades || []).filter(up => !up.optional || showOptional);
+    // Drop any currently-selected upgrades that are no longer available (e.g. optional toggled off)
+    const beforeCount = item.upgrades.length;
+    item.upgrades = item.upgrades.filter(u => item.availableUpgrades.some(au => au.name === u.name));
+    if (item.upgrades.length !== beforeCount) recalcCost(item);
+  });
+  renderRoster();
+}
+
+renderCategories();
+renderRoster();
+</script>
+</body>
+</html>
