@@ -139,6 +139,25 @@
     border-bottom: 1px solid var(--border);
     padding-bottom: 8px;
   }
+  .roster-heading-input {
+    display: block;
+    width: 100%;
+    margin: 0 0 12px;
+    font-family: 'Crimson Text', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--green);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0 0 8px;
+  }
+  .roster-heading-input:hover,
+  .roster-heading-input:focus {
+    border-bottom-color: var(--gold);
+    outline: none;
+  }
+  .roster-heading-input::placeholder { color: var(--green); opacity: 0.6; }
 
   .category {
     margin-bottom: 14px;
@@ -511,7 +530,11 @@
     border-bottom: 1px solid #1a1a1a;
     padding-bottom: 6px;
   }
-  .print-rule-entry { font-size: 0.85rem; margin-bottom: 6px; }
+  .print-rules-columns {
+    column-count: 2;
+    column-gap: 16px;
+  }
+  .print-rule-entry { font-size: 0.85rem; margin-bottom: 6px; break-inside: avoid; }
   .print-rule-entry strong { font-family: 'Cinzel', serif; }
 
   @media print {
@@ -532,15 +555,11 @@
 
   <div class="topbar">
     <div class="field">
-      <label for="warbandName">Warband name</label>
-      <input type="text" id="warbandName" placeholder="The Black Boar Company">
-    </div>
-    <div class="field">
-      <label for="pointsCap">Points limit</label>
+      <label for="pointsCap">Points</label>
       <input type="number" id="pointsCap" value="24" min="0" style="width:70px; font-family:'Crimson Text',serif; font-size:1rem; padding:5px 8px; border:1px solid var(--border); background:var(--parchment); border-radius:3px; color:var(--ink);">
     </div>
     <div class="field">
-      <label for="optionalUnits">Optional units</label>
+      <label for="optionalUnits">Optional Units</label>
       <input type="checkbox" id="optionalUnits">
     </div>
   </div>
@@ -562,13 +581,12 @@
     </div>
 
     <div class="panel">
-      <h2 id="rosterHeading">Your Warband</h2>
+      <input type="text" id="rosterHeading" class="roster-heading-input" value="Your Warband" placeholder="Your Warband" title="Click to rename your warband">
       <div class="summary">
         <span>Units: <span id="unitCount">0</span></span>
         <span>Total: <span id="totalLabel">0</span> pts <span id="capLabel"></span></span>
       </div>
       <ul class="roster-list" id="rosterList"></ul>
-      <div class="empty-note" id="emptyNote">No units enlisted yet. Choose from the left to begin your muster.</div>
       <div id="leaderSkillsSection" style="margin-top:16px; border-top:2px solid var(--gold); padding-top:12px;">
         <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
           <div style="display:flex; align-items:baseline; gap:10px;">
@@ -603,7 +621,7 @@ const UNITS = {
         { name: "Mounted Bows", cost: 2, desc: "Wild Charge and Counter-charge are removed and replaced with Shoot 6+/Range 12\" with a Shoot Value of 5+.", removesSpecial: ["Wild Charge", "Counter-charge"], statOverrides: { Shoot: "6+", SVRange: "5+/12\"" } },
         { name: "Drilled", cost: 1, desc: "This unit is better controlled than most hot-headed Elite Cavalry and removes Wild Charge.", removesSpecial: ["Wild Charge"] },
         { name: "Motivated", cost: 1, desc: "This unit has less of a snooty attitude to the grunt-work of small-scale battles, and its Move becomes 6+.", statOverrides: { Move: "6+" } },
-        { name: "Camel-mounted (Fearsome vs Mounted)", cost: 2, desc: "Represents camel-mounted troops. Uses the Fearsome upgrade in Attacks against Mounted units only (not Foot or Missile units). Unit does not class sand dunes as rough terrain. If used, must be applied to all camel units in the Warband.", optional: true }
+        { name: "Camels", cost: 2, desc: "Represents camel-mounted troops. Uses the Fearsome upgrade in Attacks against Mounted units only (not Foot or Missile units). Unit does not class sand dunes as rough terrain. If used, must be applied to all camel units in the Warband.", optional: true }
       ]
     },
     {
@@ -615,7 +633,7 @@ const UNITS = {
         { name: "Bloodthirsty", cost: 3 },
         { name: "Mounted Bows", cost: 1, desc: "Add Shoot 6+/Range 12\" with a Shoot Value of 5+. Represents horsemen who may shoot with a bow but are not afraid to charge into combat.", statOverrides: { Shoot: "6+", SVRange: "5+/12\"" } },
         { name: "Mounted Crossbows", cost: 0, desc: "Counter-charge is removed and replaced with Shoot 7+/Range 12\" with a Shoot Value of 5+. Attack Value is reduced to 5+.", removesSpecial: ["Counter-charge"], statOverrides: { Shoot: "7+", SVRange: "5+/12\"", AVDV: "5+/5+" } },
-        { name: "Camel-mounted (Fearsome vs Mounted)", cost: 2, desc: "Represents camel-mounted troops. Uses the Fearsome upgrade in Attacks against Mounted units only (not Foot or Missile units). Unit does not class sand dunes as rough terrain. If used, must be applied to all camel units in the Warband.", optional: true }
+        { name: "Camels", cost: 2, desc: "Represents camel-mounted troops. Uses the Fearsome upgrade in Attacks against Mounted units only (not Foot or Missile units). Unit does not class sand dunes as rough terrain. If used, must be applied to all camel units in the Warband.", optional: true }
       ]
     },
     {
@@ -624,7 +642,8 @@ const UNITS = {
       special: "Skirmish, Evade",
       upgrades: [
         { name: "Javelins Only", cost: -1, statOverrides: { SVRange: "5+/6\"" } },
-        { name: "Veteran", cost: 2, desc: "Does not suffer the -1 penalty to Shoot Value when Skirmishing." }
+        { name: "Veteran", cost: 2, desc: "Does not suffer the -1 penalty to Shoot Value when Skirmishing." },
+        { name: "Camels", cost: 2, desc: "Represents camel-mounted troops. Uses the Fearsome upgrade in Attacks against Mounted units only (not Foot or Missile units). Unit does not class sand dunes as rough terrain. If used, must be applied to all camel units in the Warband.", optional: true }
       ]
     }
   ],
@@ -1047,15 +1066,17 @@ function renderRoster() {
   roster.forEach(item => recalcCost(item));
 
   const list = document.getElementById('rosterList');
-  const emptyNote = document.getElementById('emptyNote');
   list.innerHTML = '';
 
   const hasLeader = roster.some(r => r.isLeader);
 
   if (roster.length === 0) {
-    emptyNote.style.display = 'block';
+    const emptyNote = document.createElement('li');
+    emptyNote.className = 'empty-note';
+    emptyNote.id = 'emptyNote';
+    emptyNote.textContent = 'No units enlisted yet. Choose from the left to begin your muster.';
+    list.appendChild(emptyNote);
   } else {
-    emptyNote.style.display = 'none';
     roster.forEach(item => {
       const li = document.createElement('li');
       li.className = 'roster-item';
@@ -1400,11 +1421,17 @@ document.getElementById('pointsCap').addEventListener('input', updateTotals);
 
 document.getElementById('clearAll').addEventListener('click', () => {
   roster = [];
+  document.getElementById('rosterHeading').value = 'Your Warband';
   renderRoster();
 });
 
+function getWarbandName() {
+  const val = document.getElementById('rosterHeading').value.trim();
+  return (val && val !== 'Your Warband') ? val : '';
+}
+
 document.getElementById('exportTxt').addEventListener('click', () => {
-  const name = document.getElementById('warbandName').value.trim() || 'Unnamed Retinue';
+  const name = getWarbandName() || 'Unnamed Retinue';
   const cap = parseInt(document.getElementById('pointsCap').value, 10);
   const total = roster.reduce((sum, r) => sum + r.cost, 0);
 
@@ -1464,7 +1491,7 @@ function findUnitDef(name) {
 
 function renderPrintView() {
   const view = document.getElementById('printView');
-  const name = document.getElementById('warbandName').value.trim() || 'Your Warband';
+  const name = getWarbandName() || 'Your Warband';
   const cap = parseInt(document.getElementById('pointsCap').value, 10);
   const total = roster.reduce((sum, r) => sum + r.cost, 0);
 
@@ -1604,11 +1631,14 @@ function renderPrintView() {
     h2.textContent = 'Rules Reference';
     rulesSection.appendChild(h2);
 
+    const columns = document.createElement('div');
+    columns.className = 'print-rules-columns';
+
     if (hasLeaderInPrint) {
       const leaderEntry = document.createElement('div');
       leaderEntry.className = 'print-rule-entry';
       leaderEntry.innerHTML = '<strong>Leader:</strong> Each turn, you may reroll one failed Move, Attack, or Shoot test (no other tests) within 12" of your Leader\'s model, unless the Leader is Battered. This reroll may be applied to the Leader\'s own unit. Leaders also give +1 to all Courage tests for units within 12" (including the Leader\'s own unit) unless Battered, and may issue Challenges.';
-      rulesSection.appendChild(leaderEntry);
+      columns.appendChild(leaderEntry);
     }
 
     Array.from(usedSpecialRules).sort().forEach(name => {
@@ -1617,7 +1647,7 @@ function renderPrintView() {
       const entry = document.createElement('div');
       entry.className = 'print-rule-entry';
       entry.innerHTML = '<strong>' + name + ':</strong> ' + def;
-      rulesSection.appendChild(entry);
+      columns.appendChild(entry);
     });
 
     // Group upgrade/skill entries by name to detect collisions (same name, different rule text)
@@ -1646,10 +1676,11 @@ function renderPrintView() {
         const entry = document.createElement('div');
         entry.className = 'print-rule-entry';
         entry.innerHTML = '<strong>' + label + ':</strong> ' + v.desc;
-        rulesSection.appendChild(entry);
+        columns.appendChild(entry);
       });
     });
 
+    rulesSection.appendChild(columns);
     view.appendChild(rulesSection);
   }
 
@@ -1666,9 +1697,9 @@ document.getElementById('leaderSkillsToggle').addEventListener('click', () => {
   btn.textContent = open ? '▾' : '▴';
 });
 
-document.getElementById('warbandName').addEventListener('input', () => {
-  const name = document.getElementById('warbandName').value.trim();
-  document.getElementById('rosterHeading').textContent = name || 'Your Warband';
+document.getElementById('rosterHeading').addEventListener('blur', () => {
+  const input = document.getElementById('rosterHeading');
+  if (!input.value.trim()) input.value = 'Your Warband';
 });
 
 document.addEventListener('click', () => {
