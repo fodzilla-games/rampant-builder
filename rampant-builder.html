@@ -143,7 +143,8 @@
     display: block;
     width: 100%;
     margin: 0 0 12px;
-    font-family: 'Crimson Text', serif;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.03em;
     font-size: 1.15rem;
     font-weight: 700;
     color: var(--green);
@@ -824,6 +825,82 @@ let roster = [];
 let nextId = 1;
 let leaderSkills = []; // chosen leader skill names
 
+const STORAGE_KEY = 'lionRampantWarband';
+
+function saveWarband() {
+  try {
+    const data = {
+      warbandName: document.getElementById('rosterHeading') ? document.getElementById('rosterHeading').value : 'Your Warband',
+      pointsCap: document.getElementById('pointsCap') ? document.getElementById('pointsCap').value : '24',
+      optionalUnits: document.getElementById('optionalUnits') ? document.getElementById('optionalUnits').checked : false,
+      leaderSkills: leaderSkills,
+      nextId: nextId,
+      roster: roster.map(item => ({
+        id: item.id,
+        name: item.name,
+        customName: item.customName,
+        baseCost: item.baseCost,
+        upgradeNames: item.upgrades.map(u => u.name),
+        cost: item.cost,
+        isLeader: item.isLeader,
+        hasBanner: item.hasBanner,
+        upgradesOpen: item.upgradesOpen
+      }))
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    // Storage unavailable or quota exceeded — fail silently, app still works without persistence
+  }
+}
+
+function loadWarband() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+
+    if (document.getElementById('pointsCap') && data.pointsCap !== undefined) {
+      document.getElementById('pointsCap').value = data.pointsCap;
+    }
+    if (document.getElementById('optionalUnits') && data.optionalUnits !== undefined) {
+      document.getElementById('optionalUnits').checked = data.optionalUnits;
+    }
+
+    leaderSkills = data.leaderSkills || [];
+    nextId = data.nextId || 1;
+
+    roster = (data.roster || []).map(saved => {
+      const def = findUnitDef(saved.name);
+      const baseUpgrades = (def && def.upgrades) || [];
+      const showOptional = data.optionalUnits;
+      const availableUpgrades = baseUpgrades.filter(up => !up.optional || showOptional);
+      const upgrades = (saved.upgradeNames || [])
+        .map(n => baseUpgrades.find(u => u.name === n))
+        .filter(Boolean);
+      return {
+        id: saved.id,
+        name: saved.name,
+        customName: saved.customName || null,
+        baseCost: saved.baseCost,
+        availableUpgrades: availableUpgrades,
+        upgrades: upgrades,
+        cost: saved.cost,
+        isLeader: !!saved.isLeader,
+        hasBanner: !!saved.hasBanner,
+        upgradesOpen: !!saved.upgradesOpen
+      };
+    });
+
+    if (document.getElementById('rosterHeading') && data.warbandName) {
+      document.getElementById('rosterHeading').value = data.warbandName;
+    }
+
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function renderCategories() {
   const container = document.getElementById('unitCategories');
   container.innerHTML = '';
@@ -1289,6 +1366,7 @@ function renderRoster() {
 
   updateTotals();
   renderLeaderSkills();
+  saveWarband();
 }
 
 function updateTotals() {
@@ -1418,7 +1496,10 @@ function renderLeaderSkills() {
     container.appendChild(row);
   });
 }
-document.getElementById('pointsCap').addEventListener('input', updateTotals);
+document.getElementById('pointsCap').addEventListener('input', () => {
+  updateTotals();
+  saveWarband();
+});
 
 document.getElementById('clearAll').addEventListener('click', () => {
   roster = [];
