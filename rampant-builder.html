@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lion Rampant Warband Builder</title>
+<title>Rampant Builder</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -44,7 +44,7 @@
   }
   header h1 {
     font-family: 'UnifrakturCook', serif;
-    font-size: clamp(1.8rem, 7vw, 3.6rem);
+    font-size: clamp(2.4rem, 10vw, 5rem);
     font-weight: 700;
     color: var(--rubric);
     margin: 0;
@@ -523,6 +523,7 @@
   .print-unit .print-line { font-size: 0.85rem; margin-top: 3px; }
   .print-rules {
     margin-top: 24px;
+    break-before: page;
   }
   .print-rules h2 {
     font-family: 'Cinzel', serif;
@@ -550,7 +551,7 @@
 <body>
 <div class="wrap" id="mainWrap">
   <header>
-    <h1><span class="h1-line">Lion Rampant</span> <span class="h1-line">Warband Builder</span></h1>
+    <h1><span class="h1-line">Rampant</span> <span class="h1-line">Builder</span></h1>
   </header>
 
   <div class="topbar">
@@ -1431,7 +1432,7 @@ function getWarbandName() {
 }
 
 document.getElementById('exportTxt').addEventListener('click', () => {
-  const name = getWarbandName() || 'Unnamed Retinue';
+  const name = getWarbandName() || 'Your Warband';
   const cap = parseInt(document.getElementById('pointsCap').value, 10);
   const total = roster.reduce((sum, r) => sum + r.cost, 0);
 
@@ -1455,11 +1456,8 @@ document.getElementById('exportTxt').addEventListener('click', () => {
       text += line + '\n';
     });
   }
-  text += '\nTotal: ' + total + ' pts';
-  if (cap > 0) {
-    text += ' / ' + cap + ' pts limit';
-    if (total > cap) text += '  [OVER LIMIT by ' + (total - cap) + ']';
-  }
+  text += '\nPoints: ' + total + (cap > 0 ? ' / ' + cap : '') + ' - Units: ' + roster.length;
+  if (cap > 0 && total > cap) text += ' [OVER LIMIT by ' + (total - cap) + ']';
   text += '\n';
 
   navigator.clipboard.writeText(text).then(() => {
@@ -1641,13 +1639,23 @@ function renderPrintView() {
       columns.appendChild(leaderEntry);
     }
 
-    Array.from(usedSpecialRules).sort().forEach(name => {
+    function sourceLabel(sources) {
+      const set = new Set(sources);
+      if (set.has('Heavy Infantry') && set.has('Light Infantry')) {
+        set.delete('Heavy Infantry');
+        set.delete('Light Infantry');
+        set.add('Infantry');
+      }
+      return Array.from(set).join(' / ');
+    }
+
+    // Build a single flat list of {sortKey, label, desc} for special rules + upgrades, then alphabetize together
+    const allEntries = [];
+
+    Array.from(usedSpecialRules).forEach(name => {
       const def = SPECIAL_RULES[name];
       if (!def) return;
-      const entry = document.createElement('div');
-      entry.className = 'print-rule-entry';
-      entry.innerHTML = '<strong>' + name + ':</strong> ' + def;
-      columns.appendChild(entry);
+      allEntries.push({ sortKey: name, label: name, desc: def });
     });
 
     // Group upgrade/skill entries by name to detect collisions (same name, different rule text)
@@ -1659,25 +1667,21 @@ function renderPrintView() {
       }
     });
 
-    function sourceLabel(sources) {
-      const set = new Set(sources);
-      if (set.has('Heavy Infantry') && set.has('Light Infantry')) {
-        set.delete('Heavy Infantry');
-        set.delete('Light Infantry');
-        set.add('Infantry');
-      }
-      return Array.from(set).join(' / ');
-    }
-
-    Object.keys(grouped).sort().forEach(name => {
+    Object.keys(grouped).forEach(name => {
       const variants = grouped[name];
       variants.forEach(v => {
         const label = variants.length > 1 ? name + ' (' + sourceLabel(v.sources) + ')' : name;
-        const entry = document.createElement('div');
-        entry.className = 'print-rule-entry';
-        entry.innerHTML = '<strong>' + label + ':</strong> ' + v.desc;
-        columns.appendChild(entry);
+        allEntries.push({ sortKey: name, label: label, desc: v.desc });
       });
+    });
+
+    allEntries.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+
+    allEntries.forEach(e => {
+      const entry = document.createElement('div');
+      entry.className = 'print-rule-entry';
+      entry.innerHTML = '<strong>' + e.label + ':</strong> ' + e.desc;
+      columns.appendChild(entry);
     });
 
     rulesSection.appendChild(columns);
