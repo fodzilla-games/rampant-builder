@@ -1785,7 +1785,9 @@ document.getElementById('leaderSkillsToggle').addEventListener('click', () => {
 document.getElementById('rosterHeading').addEventListener('blur', () => {
   const input = document.getElementById('rosterHeading');
   if (!input.value.trim()) input.value = 'Your Warband';
+  saveWarband();
 });
+document.getElementById('rosterHeading').addEventListener('input', saveWarband);
 
 document.addEventListener('click', () => {
   document.querySelectorAll('.rule-popup.open').forEach(p => p.classList.remove('open'));
@@ -1810,6 +1812,7 @@ function refreshAvailableUpgrades() {
   renderRoster();
 }
 
+loadWarband();
 renderCategories();
 renderRoster();
 </script>
